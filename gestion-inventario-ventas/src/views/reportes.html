@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes de Ventas</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Reportes de Ventas</h1>
+        
+        <div style="background: white; padding: 20px; margin: 20px 0; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+            <h2>Buscar Ventas por Fecha</h2>
+            <label for="fechaBusqueda">Seleccionar Fecha:</label>
+            <input type="date" id="fechaBusqueda" style="padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px;">
+            <br><br>
+            <button onclick="buscarVentasPorFecha()" style="background: #35424a; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 5px;">Buscar por Fecha</button>
+            <button onclick="mostrarVentasDeHoy()" style="background: #28a745; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 5px; margin-left: 10px;">Ver Ventas de Hoy</button>
+            <button onclick="mostrarTodasLasVentas()" style="background: #007acc; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 5px; margin-left: 10px;">Ver Todas las Ventas</button>
+        </div>
+
+        <div id="resultadosReporte" style="display: none;">
+            <h2 id="tituloReporte">Reporte de Ventas</h2>
+            
+            <div style="background: white; padding: 20px; margin: 20px 0; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+                <h3>Resumen por Categorías</h3>
+                <div id="resumenCategorias"></div>
+            </div>
+
+            <div style="background: white; padding: 20px; margin: 20px 0; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+                <h3>Detalle por Productos y Marcas</h3>
+                <div id="detallePorMarca"></div>
+            </div>
+
+            <div style="background: white; padding: 20px; margin: 20px 0; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+                <h3 id="totalGananciasReporte" style="color: green; font-size: 24px;">Total de Ganancias: $0.00</h3>
+            </div>
+        </div>
+
+        <div style="margin-top: 30px;">
+            <a href="/" style="background: #666; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Volver al Menú Principal</a>
+        </div>
+    </div>
+
+    <script src="/main.js"></script>
+</body>
+</html>

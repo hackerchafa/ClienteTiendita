@@ -1,14 +1,16 @@
 {
   "name": "gestion-inventario-ventas",
-  "version": "1.0.0",
-  "description": "Aplicación web para la gestión de inventario y el registro de ventas.",
+  "version": "2.0.0",
+  "description": "Aplicación web completa para la gestión de inventario, registro de ventas y reportes avanzados de una tienda tradicional mexicana.",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "dependencies": {},
-  "devDependencies": {},
-  "author": "",
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "keywords": ["inventario", "ventas", "tienda", "reportes", "nodejs", "express"],
+  "author": "Team ClienteTiendita",
   "license": "ISC"
 }
