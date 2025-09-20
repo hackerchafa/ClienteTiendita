@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Clientes</title>
+    <link rel="stylesheet" href="../public/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Gestión de Clientes</h1>
+        <form id="clienteForm">
+            <label for="nombre">Nombre:</label>
+            <input type="text" id="nombre" required>
+            <label for="contacto">Contacto:</label>
+            <input type="text" id="contacto" required>
+            <button type="submit">Agregar Cliente</button>
+        </form>
+        <h2>Lista de Clientes</h2>
+        <ul id="clientesList"></ul>
+    </div>
+    <script src="../public/main.js"></script>
+</body>
+</html>

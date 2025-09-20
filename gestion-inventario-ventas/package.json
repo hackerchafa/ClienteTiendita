@@ -1,0 +1,14 @@
+{
+  "name": "gestion-inventario-ventas",
+  "version": "1.0.0",
+  "description": "Aplicación web para la gestión de inventario y el registro de ventas.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "author": "",
+  "license": "ISC"
+}
