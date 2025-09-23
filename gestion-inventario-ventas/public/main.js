@@ -9,8 +9,11 @@ function setProductos(productos) {
 function getVentas() {
     return JSON.parse(localStorage.getItem('ventas') || '[]');
 }
-function setVentas(ventas) {
-    localStorage.setItem('ventas', JSON.stringify(ventas));
+function getReabastecimientos() {
+    return JSON.parse(localStorage.getItem('reabastecimientos') || '[]');
+}
+function setReabastecimientos(reabastecimientos) {
+    localStorage.setItem('reabastecimientos', JSON.stringify(reabastecimientos));
 }
 
 // Productos de ejemplo para mostrar al cliente
@@ -50,35 +53,364 @@ if (document.getElementById('addProductForm')) {
             productos.push({ nombre, marca, presentacion, categoria, cantidad, precio });
         }
         setProductos(productos);
+        
+        // Mostrar mensaje de éxito
+        const mensaje = document.getElementById('mensaje-exito');
+        mensaje.style.display = 'block';
+        setTimeout(() => {
+            mensaje.style.display = 'none';
+        }, 3000);
+        
         this.reset();
-        renderProductos();
     });
-    function renderProductos() {
-        const lista = document.getElementById('productList');
-        lista.innerHTML = '';
-        let productos = getProductos();
-        productos.forEach(prod => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<td>${prod.nombre}</td><td>${prod.marca}</td><td>${prod.presentacion}</td><td>${prod.categoria}</td><td>${prod.cantidad}</td><td>$${prod.precio.toFixed(2)}</td>`;
-            lista.appendChild(tr);
+}
+
+// --- Ver Productos ---
+if (document.getElementById('productList') && window.location.pathname === '/ver-productos') {
+    let categoriaFiltro = '';
+    let textoFiltro = '';
+    
+    function cargarCategoriasInventario() {
+        const select = document.getElementById('filtroCategoria');
+        const productos = getProductos();
+        const categorias = [...new Set(productos.map(p => p.categoria))].sort();
+        
+        // Limpiar opciones existentes excepto la primera
+        select.innerHTML = '<option value="">Todas las categorías</option>';
+        
+        categorias.forEach(categoria => {
+            const option = document.createElement('option');
+            option.value = categoria;
+            option.textContent = categoria;
+            select.appendChild(option);
         });
     }
-    renderProductos();
+    
+    function renderProductosInventario() {
+        const tbody = document.getElementById('productList');
+        tbody.innerHTML = '';
+        let productos = getProductos();
+        
+        // Aplicar filtros
+        let productosFiltrados = productos;
+        
+        if (categoriaFiltro) {
+            productosFiltrados = productosFiltrados.filter(p => p.categoria === categoriaFiltro);
+        }
+        
+        if (textoFiltro) {
+            productosFiltrados = productosFiltrados.filter(p => 
+                p.nombre.toLowerCase().includes(textoFiltro.toLowerCase()) ||
+                p.marca.toLowerCase().includes(textoFiltro.toLowerCase())
+            );
+        }
+        
+        // Ordenar por categoría y luego por nombre del producto
+        productosFiltrados.sort((a, b) => {
+            // Primero ordenar por categoría
+            if (a.categoria !== b.categoria) {
+                return a.categoria.localeCompare(b.categoria);
+            }
+            // Si es la misma categoría, ordenar por nombre del producto
+            return a.nombre.localeCompare(b.nombre);
+        });
+        
+        // Agrupar por categorías para agregar separadores visuales
+        let categoriaActual = '';
+        
+        productosFiltrados.forEach((prod, index) => {
+            const originalIndex = productos.indexOf(prod);
+            
+            // Agregar separador de categoría si es diferente a la anterior
+            if (prod.categoria !== categoriaActual) {
+                categoriaActual = prod.categoria;
+                const separatorRow = document.createElement('tr');
+                separatorRow.className = 'categoria-separator';
+                separatorRow.innerHTML = `
+                    <td colspan="8" class="categoria-header">
+                        <strong>📂 ${prod.categoria.toUpperCase()}</strong>
+                    </td>
+                `;
+                tbody.appendChild(separatorRow);
+            }
+            
+            const tr = document.createElement('tr');
+            const stockClass = prod.cantidad <= 5 ? 'style="color: red; font-weight: bold;"' : '';
+            tr.innerHTML = `
+                <td>${prod.nombre}</td>
+                <td>${prod.marca}</td>
+                <td>${prod.presentacion}</td>
+                <td>${prod.categoria}</td>
+                <td ${stockClass}>${prod.cantidad}</td>
+                <td>$${prod.precio.toFixed(2)}</td>
+                <td>$${(prod.cantidad * prod.precio).toFixed(2)}</td>
+                <td>
+                    <button class="btn-action btn-warning" onclick="abrirModalEditar(${originalIndex})" style="margin-right: 5px;">
+                        ✏️ Editar
+                    </button>
+                    <button class="btn-action" onclick="abrirModalReabastecer(${originalIndex})">
+                        📦 Reabastecer
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+        
+        actualizarEstadisticas(productos);
+    }
+    
+    function actualizarEstadisticas(productos) {
+        const totalProductos = productos.length;
+        const categorias = [...new Set(productos.map(p => p.categoria))].length;
+        const stockBajo = productos.filter(p => p.cantidad <= 5).length;
+        
+        document.getElementById('totalProductos').textContent = totalProductos;
+        document.getElementById('totalCategorias').textContent = categorias;
+        document.getElementById('stockBajo').textContent = stockBajo;
+    }
+    
+    // Filtros
+    document.getElementById('filtroCategoria').addEventListener('change', function(e) {
+        categoriaFiltro = e.target.value;
+        renderProductosInventario();
+    });
+    
+    document.getElementById('buscarProducto').addEventListener('input', function(e) {
+        textoFiltro = e.target.value.trim();
+        renderProductosInventario();
+    });
+    
+    cargarCategoriasInventario();
+    renderProductosInventario();
+}
+
+// Variables globales para el modal de reabastecimiento
+let productoIndexReabastecer = -1;
+let productoIndexEditar = -1;
+
+// Funciones para el modal de reabastecimiento
+function abrirModalReabastecer(productoIndex) {
+    const productos = getProductos();
+    const producto = productos[productoIndex];
+    
+    productoIndexReabastecer = productoIndex;
+    
+    document.getElementById('productoReabastecer').textContent = 
+        `${producto.nombre} - ${producto.marca} - ${producto.presentacion}`;
+    document.getElementById('stockActual').textContent = producto.cantidad;
+    
+    // Establecer fecha actual por defecto
+    const hoy = new Date().toISOString().split('T')[0];
+    document.getElementById('fechaLlegada').value = hoy;
+    
+    // Limpiar campos
+    document.getElementById('cantidadReabastecimiento').value = '';
+    document.getElementById('notasReabastecimiento').value = '';
+    
+    document.getElementById('modalReabastecer').style.display = 'flex';
+}
+
+function cerrarModal() {
+    document.getElementById('modalReabastecer').style.display = 'none';
+    productoIndexReabastecer = -1;
+}
+
+function confirmarReabastecimiento() {
+    const cantidad = parseInt(document.getElementById('cantidadReabastecimiento').value);
+    const fecha = document.getElementById('fechaLlegada').value;
+    const notas = document.getElementById('notasReabastecimiento').value.trim();
+    
+    if (!cantidad || cantidad < 1 || !fecha) {
+        alert('Por favor completa todos los campos obligatorios');
+        return;
+    }
+    
+    let productos = getProductos();
+    let producto = productos[productoIndexReabastecer];
+    
+    // Actualizar stock
+    const stockAnterior = producto.cantidad;
+    producto.cantidad += cantidad;
+    
+    // Registrar el reabastecimiento
+    let reabastecimientos = getReabastecimientos();
+    reabastecimientos.push({
+        productoNombre: producto.nombre,
+        marca: producto.marca,
+        presentacion: producto.presentacion,
+        categoria: producto.categoria,
+        cantidadAgregada: cantidad,
+        stockAnterior: stockAnterior,
+        stockNuevo: producto.cantidad,
+        fecha: fecha,
+        fechaRegistro: new Date().toISOString(),
+        notas: notas
+    });
+    
+    // Guardar cambios
+    setProductos(productos);
+    setReabastecimientos(reabastecimientos);
+    
+    // Actualizar vista
+    renderProductosInventario();
+    cerrarModal();
+    
+    alert(`Reabastecimiento registrado:\n${producto.nombre}\nCantidad agregada: ${cantidad}\nNuevo stock: ${producto.cantidad}`);
+}
+
+// Cerrar modal si se hace click fuera de él
+window.onclick = function(event) {
+    const modal = document.getElementById('modalReabastecer');
+    const modalEditar = document.getElementById('modalEditar');
+    if (event.target === modal) {
+        cerrarModal();
+    }
+    if (event.target === modalEditar) {
+        cerrarModalEditar();
+    }
+}
+
+// Funciones para el modal de editar producto
+function abrirModalEditar(productoIndex) {
+    const productos = getProductos();
+    const producto = productos[productoIndex];
+    
+    productoIndexEditar = productoIndex;
+    
+    // Pre-llenar el formulario con los datos actuales
+    document.getElementById('editNombre').value = producto.nombre;
+    document.getElementById('editMarca').value = producto.marca;
+    document.getElementById('editPresentacion').value = producto.presentacion;
+    document.getElementById('editCategoria').value = producto.categoria;
+    document.getElementById('editPrecio').value = producto.precio;
+    document.getElementById('editStock').value = `${producto.cantidad} unidades`;
+    
+    document.getElementById('modalEditar').style.display = 'flex';
+}
+
+function cerrarModalEditar() {
+    document.getElementById('modalEditar').style.display = 'none';
+    productoIndexEditar = -1;
+}
+
+function guardarEdicion() {
+    const nombre = document.getElementById('editNombre').value.trim();
+    const marca = document.getElementById('editMarca').value.trim();
+    const presentacion = document.getElementById('editPresentacion').value.trim();
+    const categoria = document.getElementById('editCategoria').value.trim();
+    const precio = parseFloat(document.getElementById('editPrecio').value);
+    
+    if (!nombre || !marca || !presentacion || !categoria || isNaN(precio) || precio < 0.01) {
+        alert('Por favor completa todos los campos correctamente');
+        return;
+    }
+    
+    let productos = getProductos();
+    let producto = productos[productoIndexEditar];
+    
+    // Guardar datos anteriores para el mensaje
+    const datosAnteriores = {
+        nombre: producto.nombre,
+        precio: producto.precio
+    };
+    
+    // Actualizar el producto
+    producto.nombre = nombre;
+    producto.marca = marca;
+    producto.presentacion = presentacion;
+    producto.categoria = categoria;
+    producto.precio = precio;
+    
+    // Guardar cambios
+    setProductos(productos);
+    
+    // Actualizar vista
+    cargarCategoriasInventario();
+    renderProductosInventario();
+    cerrarModalEditar();
+    
+    alert(`Producto actualizado exitosamente:\n${datosAnteriores.nombre} → ${nombre}\nPrecio: $${datosAnteriores.precio.toFixed(2)} → $${precio.toFixed(2)}`);
 }
 
 // --- Ventas ---
 if (document.getElementById('ventaForm')) {
-    function renderProductosVenta() {
-        const select = document.getElementById('producto');
-        select.innerHTML = '';
-        let productos = getProductos();
-        productos.forEach((prod, idx) => {
+    let todosLosProductos = [];
+    let categoriaActiva = '';
+    
+    function cargarCategorias() {
+        const select = document.getElementById('filtroCategoria');
+        const productos = getProductos();
+        const categorias = [...new Set(productos.map(p => p.categoria))].sort();
+        
+        // Limpiar opciones existentes excepto la primera
+        select.innerHTML = '<option value="">Todas las categorías</option>';
+        
+        categorias.forEach(categoria => {
             const option = document.createElement('option');
-            option.value = idx;
-            option.textContent = `${prod.nombre} - ${prod.marca} - ${prod.presentacion} ($${prod.precio.toFixed(2)}) - Stock: ${prod.cantidad}`;
+            option.value = categoria;
+            option.textContent = categoria;
             select.appendChild(option);
         });
     }
+    
+    function renderProductosVenta() {
+        const select = document.getElementById('producto');
+        select.innerHTML = '<option value="">Selecciona un producto</option>';
+        
+        let productos = getProductos();
+        todosLosProductos = productos;
+        
+        // Filtrar por categoría
+        let productosFiltrados = productos;
+        if (categoriaActiva) {
+            productosFiltrados = productos.filter(prod => prod.categoria === categoriaActiva);
+        }
+        
+        // Agregar contador de productos
+        const counter = document.getElementById('productosCounter') || createProductCounter();
+        counter.textContent = `${productosFiltrados.length} producto(s) disponible(s)`;
+        
+        productosFiltrados.forEach(prod => {
+            const idx = todosLosProductos.indexOf(prod);
+            const option = document.createElement('option');
+            option.value = idx;
+            option.textContent = `${prod.nombre} - ${prod.presentacion} - $${prod.precio.toFixed(2)}`;
+            select.appendChild(option);
+        });
+    }
+    
+    function createProductCounter() {
+        const counter = document.createElement('div');
+        counter.id = 'productosCounter';
+        counter.className = 'productos-counter';
+        const select = document.getElementById('producto');
+        select.parentNode.insertBefore(counter, select);
+        return counter;
+    }
+    
+    // Funcionalidad del dropdown de categorías
+    document.getElementById('filtroCategoria').addEventListener('change', function(e) {
+        categoriaActiva = e.target.value;
+        renderProductosVenta();
+    });
+    
+    // Mostrar información del producto seleccionado
+    document.getElementById('producto').addEventListener('change', function(e) {
+        const idx = parseInt(e.target.value);
+        const infoDiv = document.getElementById('productoInfo');
+        
+        if (isNaN(idx)) {
+            infoDiv.style.display = 'none';
+            return;
+        }
+        
+        const producto = todosLosProductos[idx];
+        document.getElementById('nombreProducto').textContent = `${producto.nombre} - ${producto.marca} - ${producto.presentacion}`;
+        document.getElementById('stockDisponible').textContent = producto.cantidad;
+        document.getElementById('precioUnitario').textContent = producto.precio.toFixed(2);
+        infoDiv.style.display = 'block';
+    });
+    
     function renderVentas() {
         const lista = document.getElementById('listaVentas');
         lista.innerHTML = '';
@@ -99,16 +431,25 @@ if (document.getElementById('ventaForm')) {
         let total = ventas.reduce((acc, v) => acc + v.total, 0);
         document.getElementById('totalGanancias').textContent = total.toFixed(2);
     }
+    
     document.getElementById('ventaForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const productoIdx = parseInt(document.getElementById('producto').value);
         const cantidad = parseInt(document.getElementById('cantidad').value);
+        
+        if (isNaN(productoIdx)) {
+            alert('Por favor selecciona un producto');
+            return;
+        }
+        
         let productos = getProductos();
         let producto = productos[productoIdx];
+        
         if (!producto || producto.cantidad < cantidad || cantidad < 1) {
             alert('Stock insuficiente o datos inválidos');
             return;
         }
+        
         let ventas = getVentas();
         ventas.push({
             nombre: producto.nombre,
@@ -117,15 +458,25 @@ if (document.getElementById('ventaForm')) {
             cantidad,
             total: producto.precio * cantidad,
             categoria: producto.categoria,
-            fecha: new Date().toISOString().split('T')[0] // Formato YYYY-MM-DD
+            fecha: new Date().toISOString().split('T')[0]
         });
+        
         producto.cantidad -= cantidad;
         setProductos(productos);
         setVentas(ventas);
+        
         this.reset();
+        document.getElementById('productoInfo').style.display = 'none';
+        categoriaActiva = '';
+        document.getElementById('filtroCategoria').value = '';
+        cargarCategorias();
         renderProductosVenta();
         renderVentas();
+        
+        alert(`Venta registrada: ${producto.nombre} x${cantidad} = $${(producto.precio * cantidad).toFixed(2)}`);
     });
+    
+    cargarCategorias();
     renderProductosVenta();
     renderVentas();
 }

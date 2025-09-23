@@ -7,13 +7,37 @@
     <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-    <h1>Bienvenido a la Tiendita</h1>
-    <nav>
-        <ul>
-            <li><a href="/inventario">Gestión de Inventario</a></li>
-            <li><a href="/ventas">Registro de Ventas</a></li>
-            <li><a href="/reportes">Reportes de Ventas</a></li>
-        </ul>
-    </nav>
+    <div class="container">
+        <header>
+            <h1>Bienvenido a la Tiendita</h1>
+            <p>Sistema de Gestión de Inventario y Ventas</p>
+        </header>
+        
+        <nav class="menu-principal">
+            <a href="/inventario" class="menu-btn">
+                <div class="btn-icon">📦</div>
+                <div class="btn-text">
+                    <h3>Gestión de Inventario</h3>
+                    <p>Administra tus productos y stock</p>
+                </div>
+            </a>
+            
+            <a href="/ventas" class="menu-btn">
+                <div class="btn-icon">💰</div>
+                <div class="btn-text">
+                    <h3>Registro de Ventas</h3>
+                    <p>Registra y consulta tus ventas</p>
+                </div>
+            </a>
+            
+            <a href="/reportes" class="menu-btn">
+                <div class="btn-icon">📊</div>
+                <div class="btn-text">
+                    <h3>Reportes de Ventas</h3>
+                    <p>Visualiza estadísticas y reportes</p>
+                </div>
+            </a>
+        </nav>
+    </div>
 </body>
 </html>

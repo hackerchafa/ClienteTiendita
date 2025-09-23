@@ -7,22 +7,49 @@
     <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Registro de Ventas</h1>
+    <div class="page-container">
+        <div class="back-nav">
+            <a href="/">← Volver al Menú Principal</a>
+        </div>
+        
+        <div class="page-header">
+            <h1>Registro de Ventas</h1>
+        </div>
+        
         <form id="ventaForm">
-            <label for="producto">Producto:</label>
-            <select id="producto" required>
-                <!-- Opciones de productos se llenarán dinámicamente -->
+            <h2>Registrar Nueva Venta</h2>
+            
+            <label for="filtroCategoria">Filtrar por Categoría:</label>
+            <select id="filtroCategoria">
+                <option value="">Todas las categorías</option>
             </select>
+            
+            <label for="producto">Seleccionar Producto:</label>
+            <select id="producto" required>
+                <option value="">Selecciona un producto</option>
+            </select>
+            
+            <div id="productoInfo" style="display: none;">
+                <p><strong>Producto seleccionado:</strong> <span id="nombreProducto"></span></p>
+                <p><strong>Stock disponible:</strong> <span id="stockDisponible"></span></p>
+                <p><strong>Precio unitario:</strong> $<span id="precioUnitario"></span></p>
+            </div>
+            
             <label for="cantidad">Cantidad:</label>
-            <input type="number" id="cantidad" required min="1">
+            <input type="number" id="cantidad" required min="1" placeholder="Cantidad a vender">
+            
             <button type="submit">Registrar Venta</button>
         </form>
-        <h2>Ventas Registradas</h2>
-        <ul id="listaVentas">
-            <!-- Lista de ventas se llenará dinámicamente -->
-        </ul>
-        <h2>Total Ganancias: <span id="totalGanancias">0</span></h2>
+        
+        <div class="ventas-section">
+            <h2>Ventas Registradas</h2>
+            <ul id="listaVentas">
+                <!-- Lista de ventas se llenará dinámicamente -->
+            </ul>
+            <div class="total-ganancias">
+                <h2>Total Ganancias: $<span id="totalGanancias">0.00</span></h2>
+            </div>
+        </div>
     </div>
     <script src="/main.js"></script>
 </body>

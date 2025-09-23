@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ver Productos</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="page-container">
+        <div class="back-nav">
+            <a href="/inventario">← Volver a Gestión de Inventario</a>
+        </div>
+        
+        <div class="page-header">
+            <h1>Inventario de Productos</h1>
+            <p>Consulta todos los productos en inventario</p>
+        </div>
+        
+        <div class="inventory-filters">
+            <div class="filter-group">
+                <label for="filtroCategoria">Filtrar por categoría:</label>
+                <select id="filtroCategoria">
+                    <option value="">Todas las categorías</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="buscarProducto">Buscar producto:</label>
+                <input type="text" id="buscarProducto" placeholder="Buscar por nombre o marca...">
+            </div>
+        </div>
+        
+        <div class="inventory-stats">
+            <div class="stat-card">
+                <h3 id="totalProductos">0</h3>
+                <p>Total Productos</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="totalCategorias">0</h3>
+                <p>Categorías</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="stockBajo">0</h3>
+                <p>Stock Bajo (≤5)</p>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table class="inventory-table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Marca</th>
+                        <th>Presentación</th>
+                        <th>Categoría</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unitario</th>
+                        <th>Valor Total</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="productList">
+                    <!-- Los productos se cargarán aquí -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Modal para reabastecer -->
+    <div id="modalReabastecer" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Reabastecer Producto</h3>
+                <span class="close" onclick="cerrarModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p><strong>Producto:</strong> <span id="productoReabastecer"></span></p>
+                <p><strong>Stock actual:</strong> <span id="stockActual"></span> unidades</p>
+                
+                <div class="form-group">
+                    <label for="cantidadReabastecimiento">Cantidad a agregar:</label>
+                    <input type="number" id="cantidadReabastecimiento" min="1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fechaLlegada">Fecha de llegada:</label>
+                    <input type="date" id="fechaLlegada" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="notasReabastecimiento">Notas (opcional):</label>
+                    <textarea id="notasReabastecimiento" placeholder="Ej: Proveedor, lote, etc."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
+                <button type="button" class="btn-primary" onclick="confirmarReabastecimiento()">Reabastecer</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para editar producto -->
+    <div id="modalEditar" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Editar Producto</h3>
+                <span class="close" onclick="cerrarModalEditar()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="editNombre">Nombre del Producto:</label>
+                        <input type="text" id="editNombre" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editMarca">Marca:</label>
+                        <input type="text" id="editMarca" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editPresentacion">Presentación:</label>
+                        <input type="text" id="editPresentacion" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editCategoria">Categoría:</label>
+                        <input type="text" id="editCategoria" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editPrecio">Precio Unitario ($):</label>
+                        <input type="number" id="editPrecio" required min="0.01" step="0.01">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Stock actual:</label>
+                        <input type="text" id="editStock" readonly style="background: #f0f0f0;">
+                        <small style="color: #666;">El stock se maneja con reabastecimiento y ventas</small>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="cerrarModalEditar()">Cancelar</button>
+                <button type="button" class="btn-primary" onclick="guardarEdicion()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/main.js"></script>
+</body>
+</html>

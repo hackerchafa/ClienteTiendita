@@ -14,7 +14,15 @@ app.get('/', (req, res) => {
 });
 
 app.get('/inventario', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'inventario.html'));
+    res.sendFile(path.join(__dirname, 'views', 'gestion-inventario.html'));
+});
+
+app.get('/agregar-productos', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'agregar-productos.html'));
+});
+
+app.get('/ver-productos', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'ver-productos.html'));
 });
 
 app.get('/ventas', (req, res) => {
