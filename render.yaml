@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: cliente-tiendita
+    env: node
+    rootDir: gestion-inventario-ventas
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    autoDeploy: true

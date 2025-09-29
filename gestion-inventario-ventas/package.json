@@ -10,7 +10,17 @@
   "dependencies": {
     "express": "^5.1.0"
   },
-  "keywords": ["inventario", "ventas", "tienda", "reportes", "nodejs", "express"],
+  "engines": {
+    "node": "20.x"
+  },
+  "keywords": [
+    "inventario",
+    "ventas",
+    "tienda",
+    "reportes",
+    "nodejs",
+    "express"
+  ],
   "author": "Team ClienteTiendita",
   "license": "ISC"
 }
