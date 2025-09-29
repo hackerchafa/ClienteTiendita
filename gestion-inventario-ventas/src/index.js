@@ -37,7 +37,15 @@ app.get('/reportes', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'reportes.html'));
 });
 
+// Favicon (evita 404 recurrente del navegador)
+app.get('/favicon.ico', (req, res) => res.status(204).end());
+
 // Start the server
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});
+
+// Handler 404 al final
+app.use((req, res) => {
+    res.status(404).send('Not Found');
 });

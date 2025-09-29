@@ -9,6 +9,9 @@ function setProductos(productos) {
 function getVentas() {
     return JSON.parse(localStorage.getItem('ventas') || '[]');
 }
+function setVentas(ventas) {
+    localStorage.setItem('ventas', JSON.stringify(ventas));
+}
 function getReabastecimientos() {
     return JSON.parse(localStorage.getItem('reabastecimientos') || '[]');
 }
